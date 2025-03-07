@@ -1,20 +1,20 @@
 using UnityEngine;
 public struct UnoptimisedStruct1
 {
-    public float velocity;
-    public bool canJump;
-    public int baseHP;
-    public int nbAllies;
-    public Vector3 position;
-    public int currentHp;
-    public float[] distancesFromObjectives;
-    public byte colorAlpha;
-    public double range;
-    public UnoptimizedStruct2 mainFriend;
-    public bool isVisible;
-    public UnoptimizedStruct2[] otherFriends;
-    public bool isStanding;
-    public float size;
+    public Vector3 position; // 12 octets
+    public double range; // 8 octets 
+    public float velocity; // 4 octets
+    public int baseHP; // 4 octets
+    public int nbAllies; // 4 octets
+    public int currentHp; // 4 octet
+    public float size; // 4 octet
+    public byte colorAlpha; // 1 octet
+    public bool isVisible; // 1 octet
+    public bool isStanding; // 1 octet
+    public bool canJump; // 1 octet
+    public UnoptimizedStruct2 mainFriend; // Taille fixe de 46 octets
+    public float[] distancesFromObjectives; // 4 octet par éléments
+    public UnoptimizedStruct2[] otherFriends; // Taille variable: 46 octets par éléments
     
     public UnoptimisedStruct1(float velocity, bool canJump, int baseHP, int nbAllies, Vector3 position, int currentHp, float[] distancesFromObjectives, byte colorAlpha, double range, UnoptimizedStruct2 mainFriend, bool isVisible, UnoptimizedStruct2[] otherFriends, bool isStanding, float size)
     {
@@ -46,16 +46,17 @@ public enum FriendState
 
 public struct UnoptimizedStruct2 
 {
-    public bool isAlive;
-    public float height;
-    public FriendState currentState;
-    public float velocity;
-    public int currentObjective;
-    public double maxSight;
-    public bool canJump;
-    public float acceleration;
-    public Vector3 position;
-    public float maxVelocity;
+    // Taille totale : 46 octets
+    public float maxVelocity; // 4 octets
+    public float height; // 4 octet
+    public float acceleration; // 4 octets 
+    public float velocity; // 4 octet
+    public int currentObjective; // 4 octets
+    public FriendState currentState; // 4 octets
+    public double maxSight; // 8 octets
+    public Vector3 position; // 12 octets
+    public bool canJump; // 1 octet
+    public bool isAlive; // 1 octet
     
     public UnoptimizedStruct2(bool isAlive, float height, FriendState currentState, float velocity, int currentObjective, double maxSight, bool canJump, float acceleration, Vector3 position, float maxVelocity)
     {
