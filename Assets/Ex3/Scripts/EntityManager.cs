@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Assets.Ex3.Components;
 
 public class EntityManager {
+
     #region Singleton
     private static EntityManager _instance;
     public static EntityManager Instance {
@@ -16,7 +17,8 @@ public class EntityManager {
     private EntityManager() { }
     #endregion
 
-    public List<uint> EntitiesIds { get; private set; } = new List<uint>();
+
+    public List<uint> EntityIds { get; private set; } = new List<uint>();
 
     public Dictionary<uint, IComponent> LifetimeComponents { get; private set; } = new Dictionary<uint, IComponent>();
     public Dictionary<uint, IComponent> PositionComponents { get; private set; } = new Dictionary<uint, IComponent>();
@@ -63,9 +65,54 @@ public class EntityManager {
         }
     }
 
+    private uint nextEntityId = 0;
+
+    public uint CreateEntity(){
+        uint id = nextEntityId++;
+        EntityIds.Add(id);
+        return id;
+    }
+
+
+    public void AddComponent(uint entityId, ComponentType type, IComponent component) {
+        Dictionary<uint, IComponent> dict = GetDictionary(type);
+        if (dict.ContainsKey(entityId)) {
+            Debug.LogWarning($"Entity {entityId} already has a component of type {type}.");
+        } else {
+            dict.Add(entityId, component);
+        }
+    }
+
+
     public IComponent GetComponent(uint entityId, ComponentType type) {
         Dictionary<uint, IComponent> dict = GetDictionary(type);
         dict.TryGetValue(entityId, out IComponent comp);
         return comp;
+    }
+
+
+    public void SetComponent(uint entityId, ComponentType type, IComponent component) {
+        Dictionary<uint, IComponent> dict = GetDictionary(type);
+        dict[entityId] = component;
+    }
+
+
+    public bool RemoveComponent(uint entityId, ComponentType type) {
+        Dictionary<uint, IComponent> dict = GetDictionary(type);
+        return dict.Remove(entityId);
+    }
+
+
+    public void RemoveEntity(uint id)
+    {
+        EntityIds.Remove(id);
+        RemoveComponent(id, ComponentType.Position);
+        RemoveComponent(id, ComponentType.Velocity);
+        RemoveComponent(id, ComponentType.Lifetime);
+        RemoveComponent(id, ComponentType.Plant);
+        RemoveComponent(id, ComponentType.Prey);
+        RemoveComponent(id, ComponentType.Predator);
+        RemoveComponent(id, ComponentType.Reproduced);
+        RemoveComponent(id, ComponentType.AlwaysReproduce);
     }
 }
