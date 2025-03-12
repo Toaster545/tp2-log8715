@@ -1,14 +1,17 @@
 using System.Collections.Generic;
 
-public class RegisterSystem
+public class RegisterSystems
 {
     public static List<ISystem> GetListOfSystems()
     {
         var toRegister = new List<ISystem>
         {
             new LifetimeSystem(),
-            // new ReproductionSystem(),
             new PositionSystem(),
+            new MovementSystem(),
+            new ChangePlantLifetimeSystem(),
+            new ChangePreyLifetimeSystem(),
+            new ChangePredatorLifetimeSystem(),
         };
         return toRegister;
     }

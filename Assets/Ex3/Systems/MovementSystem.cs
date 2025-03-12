@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class MovementSystem : ISystem
 {
-    public void Update()
+    public void UpdateSystem()
     {
         EntityManager em = EntityManager.Instance;
         List<uint> movingEntities = new List<uint>(em.VelocityComponents.Keys);

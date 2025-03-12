@@ -1,6 +1,6 @@
 public class LifetimeSystem : ISystem
 {
-    public void Update()
+    public void UpdateSystem()
     {
         EntityManager em = EntityManager.Instance;
 
@@ -12,7 +12,9 @@ public class LifetimeSystem : ISystem
                 comp.Lifetime -= Time.deltaTime * comp.DecreasingFactor;
                 if (comp.Lifetime >= 0) return;
 
-                if (comp.Reproduced || comp.AlwaysReproduce)
+                ReproducedTagComponent repTag = em.GetComponent(id, EntityManager.ComponentType.ReproducedTag) as ReproducedTagComponent;
+                AlwaysReproduceTagComponent alwaysRepTag = em.GetComponent(id, EntityManager.ComponentType.AlwaysReproduceTag) as AlwaysReproduceTagComponent;
+                if (alwaysRepTag != null || repTag != null)
                 {
                     ECSController.Instance.ReproduceEntity(id);
                 }

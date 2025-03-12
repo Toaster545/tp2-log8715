@@ -9,6 +9,7 @@ public class ChangePreyLifetime : MonoBehaviour
         _lifetime = GetComponent<Lifetime>();
     }
 
+    // Fonction qui coute très cher
     public void Update()
     {
         _lifetime.decreasingFactor = 1.0f;

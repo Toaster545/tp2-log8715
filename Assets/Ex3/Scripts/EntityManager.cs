@@ -24,6 +24,8 @@ public class EntityManager {
     public Dictionary<uint, IComponent> PlantTagComponent { get; private set; } = new Dictionary<uint, IComponent>();
     public Dictionary<uint, IComponent> PreyTagComponent { get; private set; } = new Dictionary<uint, IComponent>();
     public Dictionary<uint, IComponent> PredatorTagComponent { get; private set; } = new Dictionary<uint, IComponent>();
+    public Dictionary<uint, IComponent> ReproducedTagComponent { get; private set; } = new Dictionary<uint, IComponent>();
+    public Dictionary<uint, IComponent> AlwaysReproduceTagComponent { get; private set; } = new Dictionary<uint, IComponent>();
 
 
     public enum ComponentType {
@@ -33,6 +35,8 @@ public class EntityManager {
         Plant,
         Prey,
         Predator,
+        Reproduced,
+        AlwaysReproduce,
     }
 
 
@@ -50,6 +54,10 @@ public class EntityManager {
                 return PreyTagComponent;
             case ComponentType.Predator:
                 return PredatorTagComponent;
+            case ComponentType.Reproduced:
+                return ReproducedTagComponent;
+            case ComponentType.AlwaysReproduce:
+                return AlwaysReproduceTagComponent;
             default:
                 throw new ArgumentException($"Invalid component type: {type}");
         }

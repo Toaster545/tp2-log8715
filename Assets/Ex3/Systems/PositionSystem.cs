@@ -1,6 +1,6 @@
 public class PositionSystem : ISystem
 {
-    public void Update()
+    public void UpdateSystem()
     {
         EntityManager em = EntityManager.Instance;
 
@@ -9,7 +9,7 @@ public class PositionSystem : ISystem
             PositionComponent comp = em.GetComponent(id, EntityManager.ComponentType.Position) as PositionComponent;
             if (comp != null)
             {
-                ECSController.Instance.UpdateShapePosition(id, comp.Position);
+                ECSController.Instance.UpdateSystemShapePosition(id, comp.Position);
             }
         }
     }
