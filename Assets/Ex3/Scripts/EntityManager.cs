@@ -77,7 +77,7 @@ public class EntityManager {
         float startingLifetime = Random.Range(StartingLifetimeLowerBound, StartingLifetimeUpperBound);
         LifetimeComponent lifetime = new LifetimeComponent();
         lifetime.Lifetime = Random.Range(StartingLifetimeLowerBound, StartingLifetimeUpperBound);
-        lifetime.DecreasingFactor = 1;
+        lifetime.DecreasingFactor = 1.0f;
         lifetime.StartingLifetime = lifetime.Lifetime;
         AddComponent(id, ComponentType.Lifetime, lifetime);
 
@@ -97,7 +97,7 @@ public class EntityManager {
         uint id = CreateEntity();
         LifetimeComponent lifetime = new LifetimeComponent();
         lifetime.Lifetime = Random.Range(StartingLifetimeLowerBound, StartingLifetimeUpperBound);
-        lifetime.DecreasingFactor = 1;
+        lifetime.DecreasingFactor = 1.0f;
         lifetime.StartingLifetime = lifetime.Lifetime;
         AddComponent(id, ComponentType.Lifetime, lifetime);
 
@@ -108,6 +108,7 @@ public class EntityManager {
         AddComponent(id, ComponentType.Position, position);
 
         VelocityComponent velocity = new VelocityComponent();
+        AddComponent(id, ComponentType.Velocity, velocity);
 
         AddComponent(id, ComponentType.Prey, new PreyTagComponent());
     }
@@ -118,7 +119,7 @@ public class EntityManager {
         uint id = CreateEntity();
         LifetimeComponent lifetime = new LifetimeComponent();
         lifetime.Lifetime = Random.Range(StartingLifetimeLowerBound, StartingLifetimeUpperBound);
-        lifetime.DecreasingFactor = 1;
+        lifetime.DecreasingFactor = 1.0f;
         lifetime.StartingLifetime = lifetime.Lifetime;
         AddComponent(id, ComponentType.Lifetime, lifetime);
 
@@ -129,10 +130,21 @@ public class EntityManager {
         AddComponent(id, ComponentType.Position, position);
 
         VelocityComponent velocity = new VelocityComponent();
+        AddComponent(id, ComponentType.Velocity, velocity);
 
         AddComponent(id, ComponentType.Predator, new PredatorTagComponent());
     }
 
+
+    public void RespawnEntity(uint id) {
+        PositionComponent pos = GetComponent(id, ComponentType.Position) as PositionComponent;
+        pos.Position = ECSController.Instance.GetRespawnPosition();
+        SetComponent(id, ComponentType.Position, pos);
+        LifetimeComponent lifetime = GetComponent(id, ComponentType.Lifetime) as LifetimeComponent;
+        lifetime.Lifetime = Random.Range(StartingLifetimeLowerBound, StartingLifetimeUpperBound);
+        lifetime.StartingLifetime = lifetime.Lifetime;
+        SetComponent(id, ComponentType.Lifetime, lifetime);
+    }
 
     public uint CreateEntity(){
         uint id = nextEntityId++;
@@ -181,5 +193,6 @@ public class EntityManager {
         RemoveComponent(id, ComponentType.Predator);
         RemoveComponent(id, ComponentType.ReproducedTag);
         RemoveComponent(id, ComponentType.AlwaysReproduceTag);
+        ECSController.Instance.DestroyEntity(id);
     }
 }

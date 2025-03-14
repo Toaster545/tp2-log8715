@@ -6,14 +6,14 @@ public class RegisterSystems
     {
         var toRegister = new List<ISystem>
         {
-            new LifetimeSystem(),
-            new PositionSystem(),
-            new MovementSystem(),
+            new PredatorMovementSystem(),
+            new PreyMovementSystem(),
             new ChangePlantLifetimeSystem(),
             new ChangePreyLifetimeSystem(),
             new ChangePredatorLifetimeSystem(),
-            new PredatorMovementSystem(),
-            new PreyMovementSystem(),
+            new PositionSystem(),
+            new LifetimeSystem(),
+            new MovementSystem(),
         };
         return toRegister;
     }

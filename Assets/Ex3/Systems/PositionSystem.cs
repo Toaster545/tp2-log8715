@@ -11,6 +11,7 @@ public class PositionSystem : ISystem
         foreach (uint id in em.EntityIds)
         {
             PositionComponent comp = em.GetComponent(id, EntityManager.ComponentType.Position) as PositionComponent;
+            // Debug.LogWarning("Moving ID: " + id + " to " + comp.Position);
             if (comp != null)
             {
                 ECSController.Instance.UpdateSystemShapePosition(id, comp.Position);

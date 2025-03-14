@@ -17,20 +17,21 @@ public class ECSController : MonoBehaviour
 
     #region Singleton
     private static ECSController _instance;
-    public static ECSController Instance
-    {
-        get
-        {
-            if (_instance) return _instance;
-            
-            _instance = FindFirstObjectByType<ECSController>();
-            if (!_instance)
-            {
-                Debug.LogError("Can't find ECSController instance in scene!!");
-            }
-            return _instance;
-        }
-    }
+    public static ECSController Instance { get; private set; }
+    // public static ECSController Instance
+    // {
+    //     get
+    //     {
+    //         if (_instance) return _instance;
+    //         
+    //         _instance = FindFirstObjectByType<ECSController>();
+    //         if (!_instance)
+    //         {
+    //             Debug.LogError("Can't find ECSController instance in scene!!");
+    //         }
+    //         return _instance;
+    //     }
+    // }
 
     
     private ECSController() { }
@@ -52,6 +53,8 @@ public class ECSController : MonoBehaviour
     public void DestroyEntity(uint id)
     {
         _gameObjectsForDisplay[id].SetActive(false);
+        EntityManager em = EntityManager.Instance;
+        em.RemoveEntity(id);
     }
 
 
@@ -65,8 +68,8 @@ public class ECSController : MonoBehaviour
     // Fonction à modifier
     public void Respawn(Transform t)
     {
-        Vector2 position = GetRespawnPosition();
-        t.position = new Vector3Int((int)position.x, (int)position.y);
+        // Vector2 position = GetRespawnPosition();
+        t.position = GetRespawnPosition();
     }
 
 
@@ -77,6 +80,7 @@ public class ECSController : MonoBehaviour
     private void Awake()
     {
         _allSystems = RegisterSystems.GetListOfSystems();
+        Instance = this;
     }
 
 
@@ -90,8 +94,9 @@ public class ECSController : MonoBehaviour
         EntityManager em = EntityManager.Instance;
         var size = (float) config.gridSize;
         var ratio = Camera.main!.aspect;
-        var _height = (int)Mathf.Round(Mathf.Sqrt(size / ratio));
-        var _width = (int)Mathf.Round(size / _height);
+        _height = (int)Mathf.Round(Mathf.Sqrt(size / ratio));
+        _width = (int)Mathf.Round(size / _height);
+        // Debug.LogWarning("Valeur de t.position:" + t.position);
 
         // Initialize Plants
         for (var i = 0; i < config.plantCount; i++)

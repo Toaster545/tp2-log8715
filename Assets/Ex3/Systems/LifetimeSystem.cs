@@ -20,13 +20,11 @@ public class LifetimeSystem : ISystem
                 AlwaysReproduceTagComponent alwaysRepTag = em.GetComponent(id, EntityManager.ComponentType.AlwaysReproduceTag) as AlwaysReproduceTagComponent;
                 if (alwaysRepTag != null || repTag != null)
                 {
-                    PositionComponent pos = em.GetComponent(id, EntityManager.ComponentType.Position) as PositionComponent;
-                    pos.Position = ECSController.Instance.GetRespawnPosition();
-                    em.SetComponent(id, EntityManager.ComponentType.Position, pos);
+                    em.RespawnEntity(id);
                 }
                 else
                 {
-                    ECSController.Instance.DestroyEntity(id);
+                   em.RemoveEntity(id); 
                 }
             }
         }
