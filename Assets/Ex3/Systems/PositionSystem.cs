@@ -1,3 +1,7 @@
+using UnityEngine;
+using Assets.Ex3.Components;
+
+
 public class PositionSystem : ISystem
 {
     public void UpdateSystem()

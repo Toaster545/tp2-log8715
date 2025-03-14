@@ -1,3 +1,7 @@
+using UnityEngine;
+using Assets.Ex3.Components;
+
+
 public class LifetimeSystem : ISystem
 {
     public void UpdateSystem()
@@ -16,7 +20,9 @@ public class LifetimeSystem : ISystem
                 AlwaysReproduceTagComponent alwaysRepTag = em.GetComponent(id, EntityManager.ComponentType.AlwaysReproduceTag) as AlwaysReproduceTagComponent;
                 if (alwaysRepTag != null || repTag != null)
                 {
-                    ECSController.Instance.ReproduceEntity(id);
+                    PositionComponent pos = em.GetComponent(id, EntityManager.ComponentType.Position) as PositionComponent;
+                    pos.Position = ECSController.Instance.GetRespawnPosition();
+                    em.SetComponent(id, EntityManager.ComponentType.Position, pos);
                 }
                 else
                 {

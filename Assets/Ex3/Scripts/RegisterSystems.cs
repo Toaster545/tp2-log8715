@@ -12,6 +12,8 @@ public class RegisterSystems
             new ChangePlantLifetimeSystem(),
             new ChangePreyLifetimeSystem(),
             new ChangePredatorLifetimeSystem(),
+            new PredatorMovementSystem(),
+            new PreyMovementSystem(),
         };
         return toRegister;
     }

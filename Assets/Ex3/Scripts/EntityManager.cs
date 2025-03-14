@@ -1,8 +1,13 @@
 using System;
 using System.Collections.Generic;
 using Assets.Ex3.Components;
+using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class EntityManager {
+
+    private const float StartingLifetimeLowerBound = 5;
+    private const float StartingLifetimeUpperBound = 15;
 
     #region Singleton
     private static EntityManager _instance;
@@ -37,8 +42,8 @@ public class EntityManager {
         Plant,
         Prey,
         Predator,
-        Reproduced,
-        AlwaysReproduce,
+        ReproducedTag,
+        AlwaysReproduceTag,
     }
 
 
@@ -56,9 +61,9 @@ public class EntityManager {
                 return PreyTagComponent;
             case ComponentType.Predator:
                 return PredatorTagComponent;
-            case ComponentType.Reproduced:
+            case ComponentType.ReproducedTag:
                 return ReproducedTagComponent;
-            case ComponentType.AlwaysReproduce:
+            case ComponentType.AlwaysReproduceTag:
                 return AlwaysReproduceTagComponent;
             default:
                 throw new ArgumentException($"Invalid component type: {type}");
@@ -66,6 +71,68 @@ public class EntityManager {
     }
 
     private uint nextEntityId = 0;
+
+    public void CreatePlantEntity(GameObject prefab) {
+        uint id = CreateEntity();
+        float startingLifetime = Random.Range(StartingLifetimeLowerBound, StartingLifetimeUpperBound);
+        LifetimeComponent lifetime = new LifetimeComponent();
+        lifetime.Lifetime = Random.Range(StartingLifetimeLowerBound, StartingLifetimeUpperBound);
+        lifetime.DecreasingFactor = 1;
+        lifetime.StartingLifetime = lifetime.Lifetime;
+        AddComponent(id, ComponentType.Lifetime, lifetime);
+
+        PositionComponent position = new PositionComponent();
+        position.Position = new Vector2(
+                prefab.transform.position.x,
+                prefab.transform.position.y);
+        AddComponent(id, ComponentType.Position, position);
+
+        AddComponent(id, ComponentType.Plant, new PlantTagComponent());
+        AddComponent(id, ComponentType.AlwaysReproduceTag, new AlwaysReproduceTagComponent());
+    }
+
+
+    // Fonction à finir
+    public void CreatePreyEntity(GameObject prefab) {
+        uint id = CreateEntity();
+        LifetimeComponent lifetime = new LifetimeComponent();
+        lifetime.Lifetime = Random.Range(StartingLifetimeLowerBound, StartingLifetimeUpperBound);
+        lifetime.DecreasingFactor = 1;
+        lifetime.StartingLifetime = lifetime.Lifetime;
+        AddComponent(id, ComponentType.Lifetime, lifetime);
+
+        PositionComponent position = new PositionComponent();
+        position.Position = new Vector2(
+                prefab.transform.position.x,
+                prefab.transform.position.y);
+        AddComponent(id, ComponentType.Position, position);
+
+        VelocityComponent velocity = new VelocityComponent();
+
+        AddComponent(id, ComponentType.Prey, new PreyTagComponent());
+    }
+
+
+    // Fonction à finir
+    public void CreatePredatorEntity(GameObject prefab) {
+        uint id = CreateEntity();
+        LifetimeComponent lifetime = new LifetimeComponent();
+        lifetime.Lifetime = Random.Range(StartingLifetimeLowerBound, StartingLifetimeUpperBound);
+        lifetime.DecreasingFactor = 1;
+        lifetime.StartingLifetime = lifetime.Lifetime;
+        AddComponent(id, ComponentType.Lifetime, lifetime);
+
+        PositionComponent position = new PositionComponent();
+        position.Position = new Vector2(
+                prefab.transform.position.x,
+                prefab.transform.position.y);
+        AddComponent(id, ComponentType.Position, position);
+
+        VelocityComponent velocity = new VelocityComponent();
+
+        AddComponent(id, ComponentType.Predator, new PredatorTagComponent());
+    }
+
 
     public uint CreateEntity(){
         uint id = nextEntityId++;
@@ -112,7 +179,7 @@ public class EntityManager {
         RemoveComponent(id, ComponentType.Plant);
         RemoveComponent(id, ComponentType.Prey);
         RemoveComponent(id, ComponentType.Predator);
-        RemoveComponent(id, ComponentType.Reproduced);
-        RemoveComponent(id, ComponentType.AlwaysReproduce);
+        RemoveComponent(id, ComponentType.ReproducedTag);
+        RemoveComponent(id, ComponentType.AlwaysReproduceTag);
     }
 }

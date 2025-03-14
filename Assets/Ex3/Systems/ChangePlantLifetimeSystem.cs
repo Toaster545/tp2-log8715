@@ -1,10 +1,15 @@
+using UnityEngine;
+using Assets.Ex3.Components;
+using System.Collections.Generic;
+
+
 public class ChangePlantLifetimeSystem : ISystem
 {
     public void UpdateSystem()
     {
         EntityManager em = EntityManager.Instance;
-        List<uint> plantIds = em.GetEntitiesWithComponent(EntityManager.ComponentType.PreyTagComponent);
-        List<uint> preyIds = em.GetEntitiesWithComponent(EntityManager.ComponentType.PredatorTagComponent);
+        List<uint> plantIds = new List<uint>(em.PlantTagComponent.Keys);
+        List<uint> preyIds = new List<uint>(em.PredatorTagComponent.Keys);
         foreach (uint plant in plantIds)
         {
             LifetimeComponent lifetime = em.GetComponent(plant, EntityManager.ComponentType.Lifetime) as LifetimeComponent;
