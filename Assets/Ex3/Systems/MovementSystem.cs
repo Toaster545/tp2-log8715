@@ -1,19 +1,35 @@
 using System.Collections.Generic;
 using Assets.Ex3.Components;
 using UnityEngine;
+using Unity.Entities;
+using Unity.Collections;
+using Unity.Transforms;
 
 
-public class MovementSystem : ISystem
+public partial struct MovementSystem : ISystem
 {
-    public void UpdateSystem()
+    public void OnCreate(ref SystemState state)
     {
-        EntityManager em = EntityManager.Instance;
-        List<uint> movingEntities = new List<uint>(em.VelocityComponents.Keys);
-        foreach (uint id in movingEntities)
+        var query = state.GetEntityQuery(ComponentType.ReadOnly<VelocityComponent>(), ComponentType.ReadWrite<LocalTransform>());
+        state.RequireForUpdate(query);
+    }
+
+    public void OnDestroy(ref SystemState state) { }
+
+    public void OnUpdate(ref SystemState state)
+    {
+        var query = state.GetEntityQuery(ComponentType.ReadOnly<VelocityComponent>(), ComponentType.ReadWrite<LocalTransform>());
+        if (query == null) return;
+
+        float deltaTime = SystemAPI.Time.DeltaTime;
+        var entities = query.ToEntityArray(Allocator.Temp);
+
+        for (int i = 0; i < entities.Length; i++)
         {
-            VelocityComponent velocity = em.GetComponent(id, EntityManager.ComponentType.Velocity) as VelocityComponent;
-            PositionComponent position = em.GetComponent(id, EntityManager.ComponentType.Position) as PositionComponent;
-            position.Position += velocity.Velocity * Time.deltaTime;
+            var velocity = SystemAPI.GetComponentRO<VelocityComponent>(entities[i]);
+            var position = SystemAPI.GetComponentRW<LocalTransform>(entities[i]);
+            position.ValueRW.Position = position.ValueRW.Position + deltaTime * velocity.ValueRO.Velocity;
         }
+        entities.Dispose();
     }
 }

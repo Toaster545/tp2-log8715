@@ -1,6 +1,8 @@
+using Unity.Entities;
+
 namespace Assets.Ex3.Components
 {
-    public class AlwaysReproduceTagComponent : IComponent
+    public struct AlwaysReproduceTagComponent : IComponentData
     {
     }
 }

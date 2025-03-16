@@ -1,35 +1,63 @@
 using System.Collections.Generic;
 using Assets.Ex3.Components;
 using UnityEngine;
+using Unity.Entities;
+using Unity.Transforms;
+using Unity.Collections;
 
 
-public class PredatorMovementSystem : ISystem
+public partial struct PredatorMovementSystem : ISystem
 {
-    public void UpdateSystem()
+    public void OnCreate(ref SystemState state)
     {
-        EntityManager em = EntityManager.Instance;
-        List<uint> predatorIds = new List<uint>(em.PredatorTagComponent.Keys);
-        foreach (uint predator in predatorIds)
-        {
-            PositionComponent position = em.GetComponent(predator, EntityManager.ComponentType.Position) as PositionComponent;
-            var closestDistance = float.MaxValue;
-            var closestPosition = position.Position;
+        EntityQuery predatorQuery = state.GetEntityQuery(
+            ComponentType.ReadWrite<VelocityComponent>(),
+            ComponentType.ReadOnly<LocalTransform>(),
+            ComponentType.ReadOnly<PredatorTagComponent>());
+        EntityQuery preyQuery = state.GetEntityQuery(
+            ComponentType.ReadWrite<VelocityComponent>(),
+            ComponentType.ReadOnly<LocalTransform>(),
+            ComponentType.ReadOnly<PreyTagComponent>());
+        state.RequireAnyForUpdate(predatorQuery, preyQuery);
+    }
 
-            List<uint> preyIds = new List<uint>(em.PreyTagComponent.Keys);
-            foreach (uint prey in preyIds)
+    public void OnDestroy(ref SystemState state) { }
+
+    public void OnUpdate(ref SystemState state)
+    {
+        EntityQuery predatorQuery = state.GetEntityQuery(
+            ComponentType.ReadWrite<VelocityComponent>(),
+            ComponentType.ReadOnly<LocalTransform>(),
+            ComponentType.ReadOnly<PredatorTagComponent>());
+
+        EntityQuery preyQuery = state.GetEntityQuery(
+            ComponentType.ReadWrite<VelocityComponent>(),
+            ComponentType.ReadOnly<LocalTransform>(),
+            ComponentType.ReadOnly<PreyTagComponent>());
+
+        var predators = predatorQuery.ToEntityArray(Allocator.Temp);
+        var preys = preyQuery.ToEntityArray(Allocator.Temp);
+        
+        for (int i = 0; i < predators.Length; i++)
+        {
+            var predatorVelocity = SystemAPI.GetComponentRW<VelocityComponent>(predators[i]);
+            var predatorPosition = SystemAPI.GetComponentRO<LocalTransform>(predators[i]);
+            var closestDistance = float.MaxValue;
+            var closestPosition = predatorPosition.ValueRO.Position;
+
+            for (int j = 0; j < preys.Length; j++)
             {
-                PositionComponent preyPosition = em.GetComponent(prey, EntityManager.ComponentType.Position) as PositionComponent;
-                var distance = Vector2.Distance(preyPosition.Position, position.Position);
+                var preyPosition = SystemAPI.GetComponentRO<LocalTransform>(preys[j]);
+                var distance = Vector3.Distance(preyPosition.ValueRO.Position, predatorPosition.ValueRO.Position);
                 if (distance < closestDistance)
                 {
                     closestDistance = distance;
-                    closestPosition = preyPosition.Position;
+                    closestPosition = preyPosition.ValueRO.Position;
                 }
             }
-            VelocityComponent velocity = em.GetComponent(predator, EntityManager.ComponentType.Velocity) as VelocityComponent;
-            velocity.Velocity = (closestPosition - position.Position) * Ex3Config.PredatorSpeed;
-            // velocity.Velocity = (closestPosition - position.Position) * velocity.Speed;
-            em.SetComponent(predator, EntityManager.ComponentType.Velocity, velocity);
+            predatorVelocity.ValueRW.Velocity = (closestPosition - predatorPosition.ValueRO.Position) * Ex3Config.PredatorSpeed;
+            predators.Dispose();
+            preys.Dispose();
         }
     }
 }

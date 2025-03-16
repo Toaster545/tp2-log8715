@@ -1,44 +1,69 @@
 using UnityEngine;
+using Unity.Entities;
 using Assets.Ex3.Components;
 using System.Collections.Generic;
 
 
-public class ChangePreyLifetimeSystem : ISystem
+public partial struct ChangePreyLifetimeSystem : ISystem
 {
-    public void UpdateSystem()
+    public void OnCreate(ref SystemState state) {
+        EntityQuery preyQuery = state.GetEntityQuery(
+            ComponentType.ReadWrite<LifetimeComponent>(),
+            ComponentType.ReadOnly<PositionComponent>(),
+            ComponentType.ReadOnly<PreyTagComponent>());
+        EntityQuery predatorQuery = state.GetEntityQuery(
+            ComponentType.ReadOnly<PositionComponent>(),
+            ComponentType.ReadOnly<PredatorTagComponent>());
+        EntityQuery plantQuery = state.GetEntityQuery(
+            ComponentType.ReadOnly<PositionComponent>(),
+            ComponentType.ReadOnly<PlantTagComponent>());
+        state.RequireAnyForUpdate(preyQuery, predatorQuery, plantQuery);
+    }
+
+    public void OnDestroy(ref SystemState state) { }
+
+    public void OnUpdate(ref SystemState state)
     {
-        EntityManager em = EntityManager.Instance;
-        List<uint> preyIds = new List<uint>(em.PreyTagComponent.Keys);
-        List<uint> predatorIds = new List<uint>(em.PredatorTagComponent.Keys);
-        List<uint> plantIds = new List<uint>(em.PlantTagComponent.Keys);
-        foreach (uint prey in preyIds)
+        EntityQuery preyQuery = state.GetEntityQuery(
+            ComponentType.ReadWrite<LifetimeComponent>(),
+            ComponentType.ReadOnly<PositionComponent>(),
+            ComponentType.ReadOnly<PreyTagComponent>());
+        EntityQuery predatorQuery = state.GetEntityQuery(
+            ComponentType.ReadOnly<PositionComponent>(),
+            ComponentType.ReadOnly<PredatorTagComponent>());
+        EntityQuery plantQuery = state.GetEntityQuery(
+            ComponentType.ReadOnly<PositionComponent>(),
+            ComponentType.ReadOnly<PlantTagComponent>());
+
+        var preys = preyQuery.ToEntityArray(Allocator.Temp);
+        var predators = predatorQuery.ToEntityArray(Allocator.Temp);
+        var plants = plantQuery.ToEntityArray(Allocator.Temp);
+
+        for (int i = 0; i < preys.Length; i++)
         {
-            LifetimeComponent lifetime = em.GetComponent(prey, EntityManager.ComponentType.Lifetime) as LifetimeComponent;
-            PositionComponent preyPosition = em.GetComponent(prey, EntityManager.ComponentType.Position) as PositionComponent;
-            if (lifetime != null)
+            var lifetime = SystemAPI.GetComponentRW<LifetimeComponent>(preys[i]);
+            var preyPosition = SystemAPI.GetComponentRO<PositionComponent>(preys[i]);
+            float decreasingFactor = 1.0f;
+            for (int j = 0; j < plants.Length; j++)
             {
-                lifetime.Lifetime = 1.0f;
-            }
-
-            foreach(uint plant in plantIds)
-            {
-                PositionComponent plantPosition = em.GetComponent(plant, EntityManager.ComponentType.Position) as PositionComponent;
-                if (Vector3.Distance(plantPosition.Position, preyPosition.Position) < Ex3Config.TouchingDistance)
+                var plantPosition = SystemAPI.GetComponentRO<PositionComponent>(plants[j]);
+                if (Vector3.Distance(plantPosition.ValueRO.Position, preyPosition.ValueRO.Position) < Ex3Config.TouchingDistance)
                 {
-                    lifetime.Lifetime /= 2;
-                    break;
+                    decreasingFactor *= 2;
                 }
             }
-
-            foreach(uint predator in predatorIds)
+            for (int j = 0; j < predators.Length; j++)
             {
-                PositionComponent predatorPosition = em.GetComponent(predator, EntityManager.ComponentType.Position) as PositionComponent;
-                if (Vector3.Distance(predatorPosition.Position, preyPosition.Position) < Ex3Config.TouchingDistance)
+                var predatorPosition = SystemAPI.GetComponentRO<PositionComponent>(predators[j]);
+                if (Vector3.Distance(predatorPosition.ValueRO.Position, preyPosition.ValueRO.Position) < Ex3Config.TouchingDistance)
                 {
-                    lifetime.Lifetime *= 2;
-                    break;
+                    decreasingFactor /= 2;
                 }
             }
+            lifetime.ValueRW.DecreasingFactor = decreasingFactor;
         }
+        preys.Dispose();
+        predators.Dispose();
+        plants.Dispose();
     }
 }

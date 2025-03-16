@@ -1,33 +1,54 @@
 using UnityEngine;
+using Unity.Entities;
 using Assets.Ex3.Components;
 using System.Collections.Generic;
 
 
-public class ChangePlantLifetimeSystem : ISystem
+public partial struct ChangePlantLifetimeSystem : ISystem
 {
-    public void UpdateSystem()
-    {
-        EntityManager em = EntityManager.Instance;
-        List<uint> plantIds = new List<uint>(em.PlantTagComponent.Keys);
-        List<uint> preyIds = new List<uint>(em.PredatorTagComponent.Keys);
-        foreach (uint plant in plantIds)
-        {
-            LifetimeComponent lifetime = em.GetComponent(plant, EntityManager.ComponentType.Lifetime) as LifetimeComponent;
-            PositionComponent plantPosition = em.GetComponent(plant, EntityManager.ComponentType.Position) as PositionComponent;
-            if (lifetime != null)
-            {
-                lifetime.Lifetime = 1.0f;
-            }
+    public void OnCreate(ref SystemState state) {
+        EntityQuery plantQuery = state.GetEntityQuery(
+            ComponentType.ReadWrite<LifetimeComponent>(),
+            ComponentType.ReadOnly<LocalTransform>(),
+            ComponentType.ReadOnly<PlantTagComponent>());
+        EntityQuery preyQuery = state.GetEntityQuery(
+            ComponentType.ReadOnly<LocalTransform>(),
+            ComponentType.ReadOnly<PreyTagComponent>());
+        state.RequireAnyForUpdate(plantQuery, preyQuery);
+    }
 
-            foreach(uint prey in preyIds)
+    public void OnDestroy(ref SystemState state) { }
+
+    public void OnUpdate(ref SystemState state)
+    {
+        EntityQuery plantQuery = state.GetEntityQuery(
+            ComponentType.ReadWrite<LifetimeComponent>(),
+            ComponentType.ReadOnly<LocalTransform>(),
+            ComponentType.ReadOnly<PlantTagComponent>());
+        EntityQuery preyQuery = state.GetEntityQuery(
+            ComponentType.ReadOnly<LocalTransform>(),
+            ComponentType.ReadOnly<PreyTagComponent>());
+
+        var plants = plantQuery.ToEntityArray(Allocator.Temp);
+        var preys = preyQuery.ToEntityArray(Allocator.Temp);
+
+        for (int i = 0; i < plants.Length; i++)
+        {
+            var lifetime = SystemAPI.GetComponentRW<LifetimeComponent>(plants[i]);
+            var plantPosition = SystemAPI.GetComponentRO<LocalTransform>(plants[i]);
+            float decreasingFactor = 1.0f;
+            for (int j = 0; j < preys.Length; j++)
             {
-                PositionComponent preyPosition = em.GetComponent(prey, EntityManager.ComponentType.Position) as PositionComponent;
-                if (Vector3.Distance(plantPosition.Position, preyPosition.Position) < Ex3Config.TouchingDistance)
+                var preyPosition = SystemAPI.GetComponentRO<LocalTransform>(preys[j]);
+                if (Vector3.Distance(plantPosition.ValueRO.Position, preyPosition.ValueRO.Position) < Ex3Config.TouchingDistance)
                 {
-                    lifetime.Lifetime *= 2;
-                    break;
+                    decreasingFactor *= 2;
                 }
             }
+            lifetime.ValueRW.DecreasingFactor = decreasingFactor;
         }
+
+        plants.Dispose();
+        preys.Dispose();
     }
 }

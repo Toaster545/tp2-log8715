@@ -141,14 +141,3 @@ public class ECSController : MonoBehaviour
     }
     #endregion
 }
-
-
-
-public interface ISystem
-{
-    void UpdateSystem();
-}
-
-public interface IComponent
-{
-}

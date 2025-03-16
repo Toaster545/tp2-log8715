@@ -1,36 +1,59 @@
 using System.Collections.Generic;
 using Assets.Ex3.Components;
 using UnityEngine;
+using Unity.Entities;
 
 
-public class PreyMovementSystem : ISystem
+public partial struct PreyMovementSystem : ISystem
 {
-    public void UpdateSystem()
+    public void OnCreate(ref SystemState state) {
+        EntityQuery plantQuery = state.GetEntityQuery(
+            ComponentType.ReadWrite<VelocityComponent>(),
+            ComponentType.ReadOnly<LocalTransform>(),
+            ComponentType.ReadOnly<PlantTagComponent>());
+        EntityQuery preyQuery = state.GetEntityQuery(
+            ComponentType.ReadWrite<VelocityComponent>(),
+            ComponentType.ReadOnly<LocalTransform>(),
+            ComponentType.ReadOnly<PreyTagComponent>());
+        state.RequireAnyForUpdate(plantQuery, preyQuery);
+    }
+
+    public void OnDestroy(ref SystemState state) { }
+
+    public void OnUpdate(ref SystemState state)
     {
-        EntityManager em = EntityManager.Instance;
-        List<uint> preyIds = new List<uint>(em.PreyTagComponent.Keys);
-        foreach (uint prey in preyIds)
+        EntityQuery plantQuery = state.GetEntityQuery(
+            ComponentType.ReadWrite<VelocityComponent>(),
+            ComponentType.ReadOnly<LocalTransform>(),
+            ComponentType.ReadOnly<PlantTagComponent>());
+        EntityQuery preyQuery = state.GetEntityQuery(
+            ComponentType.ReadWrite<VelocityComponent>(),
+            ComponentType.ReadOnly<LocalTransform>(),
+            ComponentType.ReadOnly<PreyTagComponent>());
+
+        var preys = preyQuery.ToEntityArray(Allocator.Temp);
+        var plants = plantQuery.ToEntityArray(Allocator.Temp);
+
+        for (int i = 0; i < preys.Length; i++)
         {
-            PositionComponent position = em.GetComponent(prey, EntityManager.ComponentType.Position) as PositionComponent;
-
+            var preyVelocity = SystemAPI.GetComponentRW<VelocityComponent>(preys[i]);
+            var preyPosition = SystemAPI.GetComponentRO<LocalTransform>(preys[i]);
             var closestDistance = float.MaxValue;
-            var closestPosition = position.Position;
+            var closestPosition = preyPosition.ValueRO.Position;
 
-            List<uint> plantIds = new List<uint>(em.PlantTagComponent.Keys);
-            foreach (uint plant in plantIds)
+            for (int j = 0; j < plants.Length; j++)
             {
-                PositionComponent plantPosition = em.GetComponent(plant, EntityManager.ComponentType.Position) as PositionComponent;
-                var distance = Vector2.Distance(plantPosition.Position, position.Position);
+                var plantPosition = SystemAPI.GetComponentRO<LocalTransform>(plants[j]);
+                var distance = Vector3.Distance(plantPosition.ValueRO.Position, preyPosition.ValueRO.Position);
                 if (distance < closestDistance)
                 {
                     closestDistance = distance;
-                    closestPosition = plantPosition.Position;
+                    closestPosition = plantPosition.ValueRO.Position;
                 }
             }
-            VelocityComponent velocity = em.GetComponent(prey, EntityManager.ComponentType.Velocity) as VelocityComponent;
-            velocity.Velocity = (closestPosition - position.Position) * Ex3Config.PreySpeed;
-            em.SetComponent(prey, EntityManager.ComponentType.Velocity, velocity);
+            preyVelocity.ValueRW.Velocity = (closestPosition - preyPosition.ValueRO.Position) * Ex3Config.PreySpeed;
+            plants.Dispose();
+            preys.Dispose();
         }
     }
 }
-

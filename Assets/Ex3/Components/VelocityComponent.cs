@@ -1,10 +1,11 @@
+using Unity.Entities;
+using Unity.Mathematics;
+
 namespace Assets.Ex3.Components
 {
-    using UnityEngine;
-
-    public class VelocityComponent : IComponent
+    public struct VelocityComponent : IComponentData
     {
-        public Vector2 Velocity { get; set; }
-        public float Speed { get; set; }
+        public float3 Velocity;
+        public float Speed;
     }
 }

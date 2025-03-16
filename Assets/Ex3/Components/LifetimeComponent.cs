@@ -1,11 +1,11 @@
+using Unity.Entities;
+
 namespace Assets.Ex3.Components
 {
-    using UnityEngine;
-
-    public class LifetimeComponent : IComponent
+    public struct LifetimeComponent : IComponentData
     {
-        public float Lifetime { get; set; }
-        public float StartingLifetime { get; set; }
-        public float DecreasingFactor { get; set; }
+        public float Lifetime;
+        public float StartingLifetime;
+        public float DecreasingFactor;
     }
 }

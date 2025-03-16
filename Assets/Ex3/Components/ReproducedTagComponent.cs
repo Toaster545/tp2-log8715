@@ -1,6 +1,8 @@
+using Unity.Entities;
+
 namespace Assets.Ex3.Components
 {
-    public class ReproducedTagComponent : IComponent
+    public struct ReproducedTagComponent : IComponentData
     {
     }
 }
