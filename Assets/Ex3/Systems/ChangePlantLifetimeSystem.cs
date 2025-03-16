@@ -4,16 +4,21 @@ using Unity.Transforms;
 using Unity.Collections;
 using Assets.Ex3.Components;
 using System.Collections.Generic;
+using Unity.Burst;
 
 
+// [BurstCompile]
 public partial struct ChangePlantLifetimeSystem : ISystem
 {
+    EntityQuery plantQuery;
+    EntityQuery preyQuery;
+
     public void OnCreate(ref SystemState state) {
-        EntityQuery plantQuery = state.GetEntityQuery(
+        plantQuery = state.GetEntityQuery(
             ComponentType.ReadWrite<LifetimeComponent>(),
             ComponentType.ReadOnly<LocalTransform>(),
             ComponentType.ReadOnly<PlantTagComponent>());
-        EntityQuery preyQuery = state.GetEntityQuery(
+        preyQuery = state.GetEntityQuery(
             ComponentType.ReadOnly<LocalTransform>(),
             ComponentType.ReadOnly<PreyTagComponent>());
         state.RequireAnyForUpdate(plantQuery, preyQuery);
@@ -21,15 +26,16 @@ public partial struct ChangePlantLifetimeSystem : ISystem
 
     public void OnDestroy(ref SystemState state) { }
 
+    // [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        EntityQuery plantQuery = state.GetEntityQuery(
-            ComponentType.ReadWrite<LifetimeComponent>(),
-            ComponentType.ReadOnly<LocalTransform>(),
-            ComponentType.ReadOnly<PlantTagComponent>());
-        EntityQuery preyQuery = state.GetEntityQuery(
-            ComponentType.ReadOnly<LocalTransform>(),
-            ComponentType.ReadOnly<PreyTagComponent>());
+        // EntityQuery plantQuery = state.GetEntityQuery(
+        //     ComponentType.ReadWrite<LifetimeComponent>(),
+        //     ComponentType.ReadOnly<LocalTransform>(),
+        //     ComponentType.ReadOnly<PlantTagComponent>());
+        // EntityQuery preyQuery = state.GetEntityQuery(
+        //     ComponentType.ReadOnly<LocalTransform>(),
+        //     ComponentType.ReadOnly<PreyTagComponent>());
 
         var plants = plantQuery.ToEntityArray(Allocator.Temp);
         var preys = preyQuery.ToEntityArray(Allocator.Temp);
@@ -44,7 +50,7 @@ public partial struct ChangePlantLifetimeSystem : ISystem
                 var preyPosition = SystemAPI.GetComponentRO<LocalTransform>(preys[j]);
                 if (Vector3.Distance(plantPosition.ValueRO.Position, preyPosition.ValueRO.Position) < Ex3Config.TouchingDistance)
                 {
-                    decreasingFactor *= 2;
+                    decreasingFactor *= 2f;
                 }
             }
             lifetime.ValueRW.DecreasingFactor = decreasingFactor;

@@ -4,25 +4,32 @@ using UnityEngine;
 using Unity.Entities;
 using Unity.Collections;
 using Unity.Transforms;
+using Unity.Burst;
+using UnityEngine.UIElements;
 
 
+// [BurstCompile]
 public partial struct MovementSystem : ISystem
 {
+    EntityQuery query;
+
     public void OnCreate(ref SystemState state)
     {
-        var query = state.GetEntityQuery(ComponentType.ReadOnly<VelocityComponent>(), ComponentType.ReadWrite<LocalTransform>());
+        query = state.GetEntityQuery(
+            ComponentType.ReadOnly<VelocityComponent>(),
+            ComponentType.ReadWrite<LocalTransform>());
         state.RequireForUpdate(query);
     }
 
     public void OnDestroy(ref SystemState state) { }
 
+    // [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        var query = state.GetEntityQuery(ComponentType.ReadOnly<VelocityComponent>(), ComponentType.ReadWrite<LocalTransform>());
         if (query == null) return;
 
-        float deltaTime = SystemAPI.Time.DeltaTime;
         var entities = query.ToEntityArray(Allocator.Temp);
+        float deltaTime = SystemAPI.Time.DeltaTime;
 
         for (int i = 0; i < entities.Length; i++)
         {

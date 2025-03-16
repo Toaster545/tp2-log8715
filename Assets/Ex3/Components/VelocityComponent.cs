@@ -6,6 +6,5 @@ namespace Assets.Ex3.Components
     public struct VelocityComponent : IComponentData
     {
         public float3 Velocity;
-        public float Speed;
     }
 }

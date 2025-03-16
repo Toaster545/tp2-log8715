@@ -4,31 +4,37 @@ using Unity.Transforms;
 using Unity.Collections;
 using Assets.Ex3.Components;
 using System.Collections.Generic;
+using Unity.Burst;
 
 
+// [BurstCompile]
 public partial struct ChangePredatorLifetimeSystem : ISystem
 {
+
+    EntityQuery predatorQuery;
+    EntityQuery preyQuery;
     public void OnCreate(ref SystemState state) {
-        EntityQuery predatorQuery = state.GetEntityQuery(
+        predatorQuery = state.GetEntityQuery(
             ComponentType.ReadWrite<LifetimeComponent>(),
             ComponentType.ReadOnly<LocalTransform>(),
             ComponentType.ReadOnly<PredatorTagComponent>());
-        EntityQuery preyQuery = state.GetEntityQuery(
+        preyQuery = state.GetEntityQuery(
             ComponentType.ReadOnly<LocalTransform>(),
             ComponentType.ReadOnly<PreyTagComponent>());
         state.RequireAnyForUpdate(predatorQuery, preyQuery);
     }
     public void OnDestroy(ref SystemState state) { }
 
+    // [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        EntityQuery predatorQuery = state.GetEntityQuery(
-            ComponentType.ReadWrite<LifetimeComponent>(),
-            ComponentType.ReadOnly<LocalTransform>(),
-            ComponentType.ReadOnly<PredatorTagComponent>());
-        EntityQuery preyQuery = state.GetEntityQuery(
-            ComponentType.ReadOnly<LocalTransform>(),
-            ComponentType.ReadOnly<PreyTagComponent>());
+        // EntityQuery predatorQuery = state.GetEntityQuery(
+        //     ComponentType.ReadWrite<LifetimeComponent>(),
+        //     ComponentType.ReadOnly<LocalTransform>(),
+        //     ComponentType.ReadOnly<PredatorTagComponent>());
+        // EntityQuery preyQuery = state.GetEntityQuery(
+        //     ComponentType.ReadOnly<LocalTransform>(),
+        //     ComponentType.ReadOnly<PreyTagComponent>());
 
         var predators = predatorQuery.ToEntityArray(Allocator.Temp);
         var preys = preyQuery.ToEntityArray(Allocator.Temp);

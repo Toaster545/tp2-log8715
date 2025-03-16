@@ -1,7 +1,10 @@
 using UnityEngine;
 using Unity.Entities;
 using Unity.Collections;
+using Unity.Transforms;
+using Unity.Mathematics;
 using Assets.Ex3.Components;
+using System.Diagnostics;
 
 public partial struct InitializeSystem : ISystem
 {
@@ -15,25 +18,33 @@ public partial struct InitializeSystem : ISystem
         SpawnerConfig config = SystemAPI.GetSingleton<SpawnerConfig>();
         var aliveEntities = SystemAPI.QueryBuilder().WithAll<LifetimeComponent>().Build(); 
 
-        if (aliveEntities.IsEmpty){
+        bool areEntitiesInitialized = !aliveEntities.IsEmpty;
+
+        // if (aliveEntities.IsEmpty){
+        if (!areEntitiesInitialized){
             EntityManager entityManager = state.EntityManager;
 
             ComponentType[] plantComponentTypes = new ComponentType[]
             {
                 ComponentType.ReadWrite<LifetimeComponent>(),
-                ComponentType.ReadWrite<AlwaysReproduceTagComponent>(),
+                ComponentType.ReadWrite<ReproduceComponent>(),
+                ComponentType.ReadOnly<ToRespawnTagComponent>(),
                 ComponentType.ReadOnly<PlantTagComponent>(),
             };
             ComponentType[] preyComponentTypes = new ComponentType[]
             {
                 ComponentType.ReadWrite<LifetimeComponent>(),
                 ComponentType.ReadWrite<VelocityComponent>(),
+                ComponentType.ReadWrite<ReproduceComponent>(),
+                ComponentType.ReadOnly<ToRespawnTagComponent>(),
                 ComponentType.ReadOnly<PreyTagComponent>(),
             };
             ComponentType[] predatorComponentTypes = new ComponentType[]
             {
                 ComponentType.ReadWrite<LifetimeComponent>(),
                 ComponentType.ReadWrite<VelocityComponent>(),
+                ComponentType.ReadWrite<ReproduceComponent>(),
+                ComponentType.ReadOnly<ToRespawnTagComponent>(),
                 ComponentType.ReadOnly<PredatorTagComponent>(),
             };
 

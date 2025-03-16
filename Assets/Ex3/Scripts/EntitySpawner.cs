@@ -13,7 +13,8 @@ public class EntitySpawner : MonoBehaviour {
     class Baker : Baker<EntitySpawner> {
         public override void Bake(EntitySpawner spawner){
             var size = (float)spawner.config.gridSize;
-            var ratio = Camera.main!.aspect;
+            // var ratio = Camera.main!.aspect;
+            float ratio = 16f/9f;
             int _height = (int)Math.Round(Math.Sqrt(size / ratio));
             int _width = (int)Math.Round(size / _height);
             var entity = GetEntity(TransformUsageFlags.None);

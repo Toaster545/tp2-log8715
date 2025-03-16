@@ -30,6 +30,15 @@ public class Ex4Spawner : MonoBehaviour
     {
     }
 
+    // private void Update(){
+    //     Profiler.BeginSample("GetPosition");
+    //     Profiler.EndSample();
+    //     plantPositions.Dispose();
+    //     predatorPositions.Dispose();
+    //     preyPositions.Dispose();
+    //     Destroy();
+    // }
+
     private GameObject Create(GameObject prefab)
     {
         var go = Instantiate(prefab);
