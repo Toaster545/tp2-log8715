@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using Assets.Ex3.Components;
 using UnityEngine;
 using Unity.Entities;
+using Unity.Transforms;
+using Unity.Collections;
 
 
 public partial struct PreyMovementSystem : ISystem

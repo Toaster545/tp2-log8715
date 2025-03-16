@@ -1,5 +1,6 @@
 using UnityEngine;
 using Unity.Entities;
+using Unity.Collections;
 using Assets.Ex3.Components;
 
 
@@ -29,11 +30,13 @@ public partial struct LifetimeSystem : ISystem
             lifetime.ValueRW.Lifetime -= SystemAPI.Time.DeltaTime * lifetime.ValueRO.DecreasingFactor;
             if (lifetime.ValueRO.Lifetime >= 0) return;
 
+            state.EntityManager.DestroyEntity(entities[i]);
+            /*
             var repTag = SystemAPI.GetComponentRO<ReproducedTagComponent>(entities[i]);
             var alwaysRepTag = SystemAPI.GetComponentRO<AlwaysReproduceTagComponent>(entities[i]);
 
             // Peut être modifier par la
-            if (alwaysRepTag != null || repTag != null)
+            if (alwaysRepTag.IsEmpty || repTag != null)
             {
                 SystemAPI.RespawnEntity(entities[i]);
             }
@@ -41,6 +44,7 @@ public partial struct LifetimeSystem : ISystem
             {
                 SystemAPI.RemoveEntity(entities[i]);
             }
+            */
         }
         entities.Dispose();
     }

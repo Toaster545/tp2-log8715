@@ -1,5 +1,7 @@
 using UnityEngine;
 using Unity.Entities;
+using Unity.Transforms;
+using Unity.Collections;
 using Assets.Ex3.Components;
 using System.Collections.Generic;
 
