@@ -7,12 +7,12 @@ using System.Collections.Generic;
 using Unity.Burst;
 
 
-// [BurstCompile]
+[BurstCompile]
 public partial struct ChangePredatorLifetimeSystem : ISystem
 {
-
-    EntityQuery predatorQuery;
     EntityQuery preyQuery;
+    EntityQuery predatorQuery;
+
     public void OnCreate(ref SystemState state) {
         predatorQuery = state.GetEntityQuery(
             ComponentType.ReadWrite<LifetimeComponent>(),
@@ -25,17 +25,9 @@ public partial struct ChangePredatorLifetimeSystem : ISystem
     }
     public void OnDestroy(ref SystemState state) { }
 
-    // [BurstCompile]
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        // EntityQuery predatorQuery = state.GetEntityQuery(
-        //     ComponentType.ReadWrite<LifetimeComponent>(),
-        //     ComponentType.ReadOnly<LocalTransform>(),
-        //     ComponentType.ReadOnly<PredatorTagComponent>());
-        // EntityQuery preyQuery = state.GetEntityQuery(
-        //     ComponentType.ReadOnly<LocalTransform>(),
-        //     ComponentType.ReadOnly<PreyTagComponent>());
-
         var predators = predatorQuery.ToEntityArray(Allocator.Temp);
         var preys = preyQuery.ToEntityArray(Allocator.Temp);
 
@@ -49,7 +41,7 @@ public partial struct ChangePredatorLifetimeSystem : ISystem
                 var preyPosition = SystemAPI.GetComponentRO<LocalTransform>(prey);
                 if (Vector3.Distance(predatorPosition.ValueRO.Position, preyPosition.ValueRO.Position) < Ex3Config.TouchingDistance)
                 {
-                    decreasingFactor /= 2;
+                    decreasingFactor /= 2f;
                 }
             }
             lifetime.ValueRW.DecreasingFactor = decreasingFactor;

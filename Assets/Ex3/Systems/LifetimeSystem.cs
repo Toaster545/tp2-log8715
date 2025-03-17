@@ -5,7 +5,7 @@ using Assets.Ex3.Components;
 using Unity.Burst;
 
 
-// [BurstCompile]
+[BurstCompile]
 public partial struct LifetimeSystem : ISystem
 {
     EntityQuery query;
@@ -19,7 +19,7 @@ public partial struct LifetimeSystem : ISystem
 
     public void OnDestroy(ref SystemState state) { }
 
-    // [BurstCompile]
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var entities = query.ToEntityArray(Allocator.Temp);

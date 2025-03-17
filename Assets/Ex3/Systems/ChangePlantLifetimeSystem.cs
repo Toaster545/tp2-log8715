@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using Unity.Burst;
 
 
-// [BurstCompile]
+[BurstCompile]
 public partial struct ChangePlantLifetimeSystem : ISystem
 {
     EntityQuery plantQuery;
@@ -26,17 +26,9 @@ public partial struct ChangePlantLifetimeSystem : ISystem
 
     public void OnDestroy(ref SystemState state) { }
 
-    // [BurstCompile]
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        // EntityQuery plantQuery = state.GetEntityQuery(
-        //     ComponentType.ReadWrite<LifetimeComponent>(),
-        //     ComponentType.ReadOnly<LocalTransform>(),
-        //     ComponentType.ReadOnly<PlantTagComponent>());
-        // EntityQuery preyQuery = state.GetEntityQuery(
-        //     ComponentType.ReadOnly<LocalTransform>(),
-        //     ComponentType.ReadOnly<PreyTagComponent>());
-
         var plants = plantQuery.ToEntityArray(Allocator.Temp);
         var preys = preyQuery.ToEntityArray(Allocator.Temp);
 

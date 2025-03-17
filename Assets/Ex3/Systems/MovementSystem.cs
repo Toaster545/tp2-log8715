@@ -8,7 +8,7 @@ using Unity.Burst;
 using UnityEngine.UIElements;
 
 
-// [BurstCompile]
+[BurstCompile]
 public partial struct MovementSystem : ISystem
 {
     EntityQuery query;
@@ -23,12 +23,12 @@ public partial struct MovementSystem : ISystem
 
     public void OnDestroy(ref SystemState state) { }
 
-    // [BurstCompile]
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         if (query == null) return;
 
-        var entities = query.ToEntityArray(Allocator.Temp);
+        var entities = query.ToEntityArray(AllocatorManager.Temp);
         float deltaTime = SystemAPI.Time.DeltaTime;
 
         for (int i = 0; i < entities.Length; i++)
