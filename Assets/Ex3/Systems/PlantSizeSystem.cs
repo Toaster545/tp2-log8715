@@ -4,9 +4,10 @@ using Unity.Collections;
 using Assets.Ex3.Components;
 using Unity.Transforms;
 using UnityEngine.Rendering;
+using Unity.Burst;
 
-public partial struct PlantSizeSystem : ISystem
-{
+[BurstCompile]
+public partial struct PlantSizeSystem : ISystem {
     EntityQuery plantQuery;
 
     public void OnCreate(ref SystemState state) {
@@ -19,10 +20,10 @@ public partial struct PlantSizeSystem : ISystem
 
     public void OnDestroy(ref SystemState state) { }
 
-    // [BurstCompile]
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        var entities = plantQuery.ToEntityArray(Allocator.Temp);
+        var entities = plantQuery.ToEntityArray(AllocatorManager.Temp);
         for (int i = 0; i < entities.Length; i++)
         {
             var lifetime = SystemAPI.GetComponentRO<LifetimeComponent>(entities[i]);

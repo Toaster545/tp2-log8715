@@ -8,7 +8,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Assets.Ex3.Components;
 
-// [BurstCompile]
+[BurstCompile]
 public struct MoveJob : IJobParallelFor
 {
     [ReadOnly] public float speed;

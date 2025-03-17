@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using Unity.Burst;
 
 
-// [BurstCompile]
+[BurstCompile]
 public partial struct ChangePreyLifetimeSystem : ISystem
 {
 
@@ -31,20 +31,9 @@ public partial struct ChangePreyLifetimeSystem : ISystem
 
     public void OnDestroy(ref SystemState state) { }
 
-    // [BurstCompile]
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        // EntityQuery preyQuery = state.GetEntityQuery(
-        //     ComponentType.ReadWrite<LifetimeComponent>(),
-        //     ComponentType.ReadOnly<LocalTransform>(),
-        //     ComponentType.ReadOnly<PreyTagComponent>());
-        // EntityQuery predatorQuery = state.GetEntityQuery(
-        //     ComponentType.ReadOnly<LocalTransform>(),
-        //     ComponentType.ReadOnly<PredatorTagComponent>());
-        // EntityQuery plantQuery = state.GetEntityQuery(
-        //     ComponentType.ReadOnly<LocalTransform>(),
-        //     ComponentType.ReadOnly<PlantTagComponent>());
-
         var preys = preyQuery.ToEntityArray(AllocatorManager.Temp);
         var predators = predatorQuery.ToEntityArray(AllocatorManager.Temp);
         var plants = plantQuery.ToEntityArray(AllocatorManager.Temp);
@@ -59,7 +48,7 @@ public partial struct ChangePreyLifetimeSystem : ISystem
                 var plantPosition = SystemAPI.GetComponentRO<LocalTransform>(plants[j]);
                 if (Vector3.Distance(plantPosition.ValueRO.Position, preyPosition.ValueRO.Position) < Ex3Config.TouchingDistance)
                 {
-                    decreasingFactor *= 2;
+                    decreasingFactor *= 2f;
                 }
             }
             for (int j = 0; j < predators.Length; j++)
@@ -67,7 +56,7 @@ public partial struct ChangePreyLifetimeSystem : ISystem
                 var predatorPosition = SystemAPI.GetComponentRO<LocalTransform>(predators[j]);
                 if (Vector3.Distance(predatorPosition.ValueRO.Position, preyPosition.ValueRO.Position) < Ex3Config.TouchingDistance)
                 {
-                    decreasingFactor /= 2;
+                    decreasingFactor /= 2f;
                 }
             }
             lifetime.ValueRW.DecreasingFactor = decreasingFactor;
