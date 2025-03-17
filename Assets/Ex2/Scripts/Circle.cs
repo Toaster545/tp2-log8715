@@ -51,12 +51,6 @@ public class Circle : MonoBehaviour
     public void ReceiveHp(float hpReceived)
     {
         Health += hpReceived;
-        if (Health > BaseHealth) {
-            Health = BaseHealth;
-        } else if (Health < 0) {
-            Health = 0;
-        }
-        // Cette modif retire 0.6 ms soit 0.6%
-        // Health = Mathf.Clamp(Health, 0, BaseHealth);
+        Health = Mathf.Clamp(Health, 0, BaseHealth);
     }
 }
